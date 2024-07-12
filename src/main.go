@@ -3,10 +3,18 @@ package src
 import "fmt"
 
 func Main() {
+	props := parseProps()
+
 	server(ServerConfig{
-		Port:      3000,
-		UseStdout: true,
+		Port:      props.Port,
+		UseStdout: props.ShowServerInfo,
 	}, func(data RequestBody) {
-		fmt.Printf("[%s]: %s\n", data.LogLevel, data.Message)
+		line := fmt.Sprintf("[%s]: %s\n", fmtLogLevel(data.LogLevel, props.ColorFull), data.Message)
+
+		if props.FilePath == "" {
+			fmt.Print(line)
+		} else {
+			writeToFile(props.FilePath, line)
+		}
 	})
 }

@@ -54,7 +54,7 @@ func server(config ServerConfig, callback Callback) {
 	})
 
 	if config.UseStdout {
-		fmt.Println("Starting the server")
+		fmt.Printf("Starting the server on port %d\n", config.Port)
 	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
