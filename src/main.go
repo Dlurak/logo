@@ -1,6 +1,9 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func Main() {
 	props := parseProps()
@@ -9,12 +12,23 @@ func Main() {
 		Port:      props.Port,
 		UseStdout: props.ShowServerInfo,
 	}, func(data RequestBody) {
-		line := fmt.Sprintf("[%s]: %s\n", fmtLogLevel(data.LogLevel, props.ColorFull), data.Message)
+		line := data.fmtLine(props.ColorFull)
 
 		if props.FilePath == "" {
 			fmt.Print(line)
-		} else {
-			writeToFile(props.FilePath, line)
+			return
 		}
+
+		if strings.HasSuffix(props.FilePath, ".json") {
+			json, err := data.json()
+			if err != nil {
+				return
+			}
+
+			writeToFile(props.FilePath, json)
+			return
+		}
+
+		writeToFile(props.FilePath, line)
 	})
 }

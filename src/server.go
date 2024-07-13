@@ -9,16 +9,25 @@ import (
 type LogLevel string
 
 const (
-	DebugLevel LogLevel = "Debug"
-	InfoLevel LogLevel = "Info"
+	DebugLevel   LogLevel = "Debug"
+	InfoLevel    LogLevel = "Info"
 	WarningLevel LogLevel = "Warning"
-	ErrorLevel LogLevel = "Error"
-	FatalLevel LogLevel = "Fatal"
+	ErrorLevel   LogLevel = "Error"
+	FatalLevel   LogLevel = "Fatal"
 )
 
 type RequestBody struct {
 	LogLevel LogLevel
 	Message  string
+}
+
+func (req RequestBody) fmtLine(colorFull bool) string {
+	return fmt.Sprintf("[%s]: %s\n", fmtLogLevel(req.LogLevel, colorFull), req.Message)
+}
+
+func (req RequestBody) json() (string, error) {
+	data, err := json.Marshal(req)
+	return string(data), err
 }
 
 type Callback func(RequestBody)
@@ -42,7 +51,7 @@ func server(config ServerConfig, callback Callback) {
 			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
 			return
 		}
-		if  !IsValidLogLevel(reqBody.LogLevel) {
+		if !IsValidLogLevel(reqBody.LogLevel) {
 			http.Error(w, "Invalid Log Level", http.StatusBadRequest)
 			return
 		}
